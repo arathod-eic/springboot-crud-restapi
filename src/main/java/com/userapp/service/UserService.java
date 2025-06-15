@@ -9,9 +9,9 @@ public interface UserService {
 
 	void saveUser(UserDTO userDTO);
 
-	UserDTO updateUser(UpdateUserDTO userDTO); //used UpdatedUserDTO, because, in update it's possible that one or more field can be null.
+	UserDTO updateUser(int userId,UpdateUserDTO userDTO); //used UpdatedUserDTO, because, in update it's possible that one or more field can be null.
 
-	UserDTO updateFullUser(UserDTO userDTO);
+	UserDTO updateFullUser(int userId, UserDTO userDTO);
 	
 	void deleteUser(int id);
 

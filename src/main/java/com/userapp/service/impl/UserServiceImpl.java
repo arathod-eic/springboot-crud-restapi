@@ -40,9 +40,9 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	@Override
-	public UserDTO updateUser(UpdateUserDTO userDTO) {
+	public UserDTO updateUser(int userId, UpdateUserDTO userDTO) {
 		//In rest controller, no custom annotation used, so, here the error UserNotFoundException can be thrown
-		User user = userDAO.findById(userDTO.getId()).orElseThrow(() -> new UserNotFoundException(String.valueOf(userDTO.getId()))); 
+		User user = userDAO.findById(userId).orElseThrow(() -> new UserNotFoundException("User with Id: "+String.valueOf(userId)+ " is not present in the DB" )); 
 		
 		//setting the updated field
 		if(userDTO.getFirstName() !=null) {
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Transactional
 	@Override
-	public UserDTO updateFullUser(UserDTO userDTO) {
+	public UserDTO updateFullUser(int userId, UserDTO userDTO) {
 		//In rest controller, no custom annotation used, so, here the error UserNotFoundException can be thrown
 		User user = userDAO.findById(userDTO.getId()).orElseThrow(() -> new UserNotFoundException(String.valueOf(userDTO.getId()))); 
 		

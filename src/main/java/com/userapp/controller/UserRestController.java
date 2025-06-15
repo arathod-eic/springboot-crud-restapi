@@ -58,13 +58,13 @@ public class UserRestController {
 	
 	@PatchMapping("/users/{userId}")
 	public ResponseEntity<Void> updateUser(@PathVariable int  userId, @RequestBody @Valid UpdateUserDTO userDTO) { //Here we have used the UpdatedUserDTO - used specifically in the patch, where there is no strict policy of all the fields to be present
-		userService.updateUser(userDTO);
+		userService.updateUser(userId, userDTO);
 		return ResponseEntity.status(HttpStatus.OK).build();		
 	}
 	
 	@PutMapping("/users/{userId}")
 	public ResponseEntity<Void> updateFullUser(@PathVariable int  userId, @RequestBody @Valid UserDTO userDTO) { //Here we have used the UpdatedUserDTO - used specifically in the patch, where there is no strict policy of all the fields to be present
-		userService.updateUser(userDTO);
+		userService.updateFullUser(userId, userDTO);
 		return ResponseEntity.status(HttpStatus.OK).build();		
 	}
 }

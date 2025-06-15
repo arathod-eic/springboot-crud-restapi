@@ -15,7 +15,9 @@ import com.userapp.dto.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestControllerAdvice // Combination of @ControllerAdvice + @ResponseBody
 public class GlobalExceptionHandler {
 
