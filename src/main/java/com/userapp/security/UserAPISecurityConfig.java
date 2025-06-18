@@ -19,6 +19,9 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @EnableWebSecurity
 @Configuration
 @Order(2)
@@ -26,7 +29,18 @@ public class UserAPISecurityConfig {
 	
 	@Bean
 	public UserDetailsService userDetailsService(DataSource dataSource) {
-		return new JdbcUserDetailsManager(dataSource);
+		JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
+		
+		manager.setUsersByUsernameQuery("SELECT username, password, enabled FROM app_users WHERE username = ?");
+		manager.setAuthoritiesByUsernameQuery(
+				 "SELECT u.username, r.name " +
+				            "FROM app_users u " +
+				            "JOIN app_user_roles ur ON u.id = ur.user_id " +
+				            "JOIN app_roles r ON ur.role_id = r.id " +
+				            "WHERE u.username = ?"
+				);
+		
+		return manager;
 	}
 	
 	@Bean
@@ -35,16 +49,16 @@ public class UserAPISecurityConfig {
 	}
 	
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, DefaultWebSecurityExpressionHandler expressionHandler) throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.securityMatcher("/api/users/**").		
 		authorizeHttpRequests(configurer -> 
 		configurer
 		.requestMatchers(HttpMethod.GET, "/api/users").hasRole("EMPLOYEE") //Employee can get all the user
-		.requestMatchers(HttpMethod.GET, "/api/users/*").hasAnyRole("EMPLOYEE", "MANAGER") // manager and employee can get single and multiple user
+		.requestMatchers(HttpMethod.GET, "/api/users/*").hasAnyRole("EMPLOYEE") // manager and employee can get single and multiple user
 		.requestMatchers(HttpMethod.POST, "/api/users").hasRole("MANAGER") //manager can add user
 		.requestMatchers(HttpMethod.PATCH, "/api/users/*").hasRole("MANAGER") //manager can update the user partially
 		.requestMatchers(HttpMethod.DELETE, "/api/users/*").hasRole("ADMIN") //admin can only remove the user
-		);
+				);
 
 		http.httpBasic(Customizer.withDefaults());
 		http.csrf(csrf -> csrf.disable());
@@ -52,12 +66,14 @@ public class UserAPISecurityConfig {
 		return http.build();
 	}
 	
+	/*
+	 * Once you define the ROLE here, no need to pass it anywhere, spring will take care of it.
+	 */
 	@Bean
 	static RoleHierarchy roleHierarchy() {
 		return RoleHierarchyImpl.withDefaultRolePrefix()
 				.role("ADMIN").implies("MANAGER")
-				.role("MANAGER").implies("USER")
+				.role("MANAGER").implies("EMPLOYEE")
 				.build();
 	}
-	
 }
